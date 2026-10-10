@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+build/
+dist/
+npm-debug.log*
+.env*
+.DS_Store
+*.tsbuildinfo
+.venv/
+__pycache__/
+*.pyc
