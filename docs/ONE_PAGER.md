@@ -32,21 +32,21 @@ Moon base profile (top 5 of 24):
 
 | Rank | Site | Score | Confidence |
 | --- | --- | --- | --- |
-| 1 | McMurdo Dry Valleys | 43.6 | 85 |
-| 2 | Atacama Desert | 36.9 | 90 |
-| 3 | Namib Desert | 34.4 | 56 |
-| 4 | Craters of the Moon | 34.0 | 85 |
-| 5 | East Antarctic Plateau | 32.7 | 80 |
+| 1 | McMurdo Dry Valleys | 48.1 | 85 |
+| 2 | Atacama Desert | 42.8 | 90 |
+| 3 | Namib Desert | 37.5 | 56 |
+| 4 | East Antarctic Plateau | 34.1 | 80 |
+| 5 | Craters of the Moon | 32.7 | 85 |
 
 Mars base profile (top 5 of 24):
 
 | Rank | Site | Score | Confidence |
 | --- | --- | --- | --- |
-| 1 | East Antarctic Plateau | 34.4 | 80 |
-| 2 | Atacama Desert | 27.0 | 90 |
-| 3 | McMurdo Dry Valleys | 26.1 | 85 |
-| 4 | Namib Desert | 26.0 | 56 |
-| 5 | Wadi Rum | 24.5 | 85 |
+| 1 | Atacama Desert | 53.1 | 90 |
+| 2 | Namib Desert | 42.2 | 56 |
+| 3 | East Antarctic Plateau | 40.4 | 80 |
+| 4 | McMurdo Dry Valleys | 37.6 | 85 |
+| 5 | Pilbara | 35.2 | 60 |
 
 Full top-10 tables and all checks: `docs/VALIDATION.md`.
 

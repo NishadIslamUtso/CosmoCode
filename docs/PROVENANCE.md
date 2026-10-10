@@ -30,6 +30,14 @@ Map tiles: OpenStreetMap, OpenTopoMap and Esri World Imagery (all free tiers, no
 
 Radiation is stored in µSv/day (microsieverts per day).
 
+## What is measured and what is judgement
+
+- **Targets** are traceable to an instrument or a dataset. See the table above, and the planetary targets section below, for the citation behind each one.
+- **Tolerances** are how far a site can sit from a target before it scores zero. These are our judgement, not a published number. They are set so that each axis still separates the 24 sites instead of flattening them all to 0 or 1.
+- **Weights** say how much an axis counts. These are our judgement too, chosen from what matters for a habitat: thermal, terrain, water and dust. Every weight is editable in `src/data/config.json` and in the app's custom profile builder, and the ranking recomputes as you change it.
+
+Because tolerances and weights are judgement, we publish them rather than bury them, and `npm run validate` re-runs the whole model so anybody can check the arithmetic.
+
 ## Site photos
 
 Site photos were removed. The picsum.photos placeholders showed landscapes that are not the actual sites, which is worse than no photo for a science demo. Real NASA/Wikimedia photos with attribution go back here; the `imageUrl` / `imageCredit` fields are still in the type and guarded in the UI.

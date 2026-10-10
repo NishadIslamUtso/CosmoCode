@@ -60,29 +60,29 @@ Invariants:
 
 Moon base profile (top 10 of 24)
 rank  site                      score  confidence
-   1  McMurdo Dry Valleys        43.6          85
-   2  Atacama Desert             36.9          90
-   3  Namib Desert               34.4          56
-   4  Craters of the Moon        34.0          85
-   5  East Antarctic Plateau     32.7          80
-   6  Devon Island               30.6          85
-   7  Deception Island           28.6          52
-   8  Sonoran Desert             28.1          60
-   9  Lanzarote                  27.8          85
-  10  Death Valley               26.4          90
+   1  McMurdo Dry Valleys        48.1          85
+   2  Atacama Desert             42.8          90
+   3  Namib Desert               37.5          56
+   4  East Antarctic Plateau     34.1          80
+   5  Craters of the Moon        32.7          85
+   6  Wadi Rum                   32.0          85
+   7  Devon Island               32.0          85
+   8  Pilbara                    31.3          60
+   9  Mojave Desert              30.1          90
+  10  Erta Ale                   28.2          52
 
 Mars base profile (top 10 of 24)
 rank  site                      score  confidence
-   1  East Antarctic Plateau     34.4          80
-   2  Atacama Desert             27.0          90
-   3  McMurdo Dry Valleys        26.1          85
-   4  Namib Desert               26.0          56
-   5  Wadi Rum                   24.5          85
-   6  Death Valley               21.8          90
-   7  Danakil Depression         19.7          52
-   8  Negev Desert               19.5          85
-   9  Mojave Desert              17.9          90
-  10  Rio Tinto                  17.6          90
+   1  Atacama Desert             53.1          90
+   2  Namib Desert               42.2          56
+   3  East Antarctic Plateau     40.4          80
+   4  McMurdo Dry Valleys        37.6          85
+   5  Pilbara                    35.2          60
+   6  Wadi Rum                   35.1          85
+   7  Danakil Depression         31.2          52
+   8  Mojave Desert              30.9          90
+   9  Death Valley               30.1          90
+  10  Negev Desert               29.6          85
 
 Moon base: parameters where every site scores 0 similarity: tempRange, radiation
 Mars base: parameters where every site scores 0 similarity: radiation, pressure

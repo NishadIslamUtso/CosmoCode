@@ -34,7 +34,7 @@ It is all clearly labeled in the app and in `docs/PROVENANCE.md`.
 
 ## How to run
 
-You need Node.js 18.17 or newer (we tested on Node 22 on Linux).
+You need Node.js 18.17 or newer (we tested on Node 20.20 on Linux).
 
 ```bash
 npm install
@@ -47,7 +47,7 @@ services. The scoring also works offline since the data is just JSON in the repo
 Two more useful commands:
 
 ```bash
-npm run build     # production build (98.8 kB first load JS, it is small)
+npm run build     # production build (96.6 kB first load JS for /, it is small)
 npm run validate  # reruns the scoring in the terminal and checks the rankings
 ```
 
