@@ -9,7 +9,7 @@ Beat-by-beat plan for the live demo. The whole demo runs offline; there are no A
 | 0:50-1:20 | Profiles | Flip Moon base / Mars base. Rankings recompute instantly. Point out the biggest movers. |
 | 1:20-1:50 | Custom builder | Open Custom, apply the "Mars aqueous" preset. Rio Tinto climbs the table. This is the "no black box" moment: every number is editable. |
 | 1:50-2:20 | Site detail | Click Rio Tinto. Per-parameter breakdown, similarity chart, confidence, NASA source links. |
-| 2:20-2:40 | Honesty beat | Show a dashed marker (sparse data): "The app tells you what it does not know." Show that radiation and pressure score 0 for every Earth site, because Earth shields us. |
+| 2:20-2:40 | Honesty beat | Show a dashed marker (poorly resolved site): "The app tells you what it does not know." Then the panel above the map: "No Earth site can match these" lists the axes Earth physically cannot do, with the weight set aside. That is the point, not a bug. |
 | 2:40-3:00 | Close | Filter, sort, export CSV. Hand over docs/: PROVENANCE, VALIDATION, ONE_PAGER. |
 
 ## Backup plan

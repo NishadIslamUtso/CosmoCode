@@ -125,7 +125,10 @@ export default function SiteDetail({ row, sourceLinks, onClose }: Props) {
       </div>
 
       <div className="border-t border-border px-4 py-3">
-        <h3 className="text-sm font-semibold">NASA sources</h3>
+        <h3 className="text-sm font-semibold">Datasets behind this site</h3>
+        <p className="mt-1 text-xs text-muted">
+          Rows marked estimated above are our judgement and are not from these datasets.
+        </p>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs">
           {site.sources.map((key) => {
             const url = sourceLinks[key];

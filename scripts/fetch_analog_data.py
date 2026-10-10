@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Starter script: pull a single point's climatology from NASA POWER.
 
-This is a starting point only. The site values in src/data/sites.json are
-curated sample data (see docs/PROVENANCE.md); this script shows how a live
-pull would work for one parameter set.
+Superseded by scripts/fetch_power.py, which is the script actually used to
+build src/data/sites.json. This one is kept only as a minimal example of a
+single-point POWER call with no retry or elevation handling; it writes nothing
+that the app reads. For the real retrieval, run scripts/fetch_power.py and
+scripts/fetch_dem.py instead.
 
 Usage:
     python3 scripts/fetch_analog_data.py LAT LON
