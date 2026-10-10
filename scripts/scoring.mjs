@@ -25,7 +25,32 @@ export function confidence(site) {
   return Math.round(site.completeness * site.resolutionTier * 100);
 }
 
-export function scoreSite(site, profile, parameters) {
+/**
+ * Axes that no site in the dataset can score on at all, for example radiation.
+ * They are reported separately instead of being averaged into every score.
+ */
+export function structuralMismatch(sites, profile, parameters) {
+  const keys = [];
+  for (const p of parameters) {
+    const t = profile.targets[p.key];
+    const anyNonZero = sites.some(
+      (s) => similarity(s.values[p.key], t.target, t.tolerance) > 0
+    );
+    if (!anyNonZero) keys.push(p.key);
+  }
+  const blocked = new Set(keys);
+  return {
+    keys,
+    labels: parameters.filter((p) => blocked.has(p.key)).map((p) => p.label),
+    weight: keys.reduce((acc, k) => acc + profile.targets[k].weight, 0),
+    scorableWeight: parameters
+      .filter((p) => !blocked.has(p.key))
+      .reduce((acc, p) => acc + profile.targets[p.key].weight, 0),
+  };
+}
+
+export function scoreSite(site, profile, parameters, structural) {
+  const blocked = new Set(structural.keys);
   const breakdown = parameters.map((p) => {
     const t = profile.targets[p.key];
     const value = site.values[p.key];
@@ -42,14 +67,16 @@ export function scoreSite(site, profile, parameters) {
       contribution: t.weight * sim,
     };
   });
-  const weightSum = breakdown.reduce((acc, b) => acc + b.weight, 0);
-  const raw = breakdown.reduce((acc, b) => acc + b.contribution, 0);
+  const usable = breakdown.filter((b) => !blocked.has(b.key));
+  const weightSum = usable.reduce((acc, b) => acc + b.weight, 0);
+  const raw = usable.reduce((acc, b) => acc + b.contribution, 0);
   const score = weightSum > 0 ? (100 * raw) / weightSum : 0;
-  return { site, score, confidence: confidence(site), breakdown };
+  return { site, score, confidence: confidence(site), breakdown, structural };
 }
 
 export function scoreAll(sites, profile, parameters) {
+  const structural = structuralMismatch(sites, profile, parameters);
   return sites
-    .map((s) => scoreSite(s, profile, parameters))
+    .map((s) => scoreSite(s, profile, parameters, structural))
     .sort((a, b) => b.score - a.score || a.site.name.localeCompare(b.site.name));
 }

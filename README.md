@@ -1,4 +1,4 @@
-> This is a frontend prototype. It runs on a curated sample dataset bundled with the app. A live NASA data pipeline, with automatic retrieval and validation scripts, is our next step.
+> This is a frontend prototype. It runs on a curated sample dataset bundled with the app: eight of the thirteen parameters are measured and reproducible from the scripts in this repo, five are our own estimates. A live NASA data pipeline, with automatic retrieval and validation scripts, is our next step.
 
 # CosmoCode - Earth Analog Finder
 
@@ -29,6 +29,8 @@ It is all clearly labeled in the app and in `docs/PROVENANCE.md`.
   pressure, daylight, precipitation, humidity, dust, isolation, elevation, and
   aqueous geochemistry (the 13th one, added after early feedback, since sites like
   Rio Tinto are all about water chemistry).
+- Each parameter is labelled measured, derived or estimated in the detail panel, so
+  you can see which numbers are real and which are our judgement.
 - Filter, sort, and export the results as CSV.
 
 ## How to run
@@ -46,7 +48,7 @@ services. The scoring also works offline since the data is just JSON in the repo
 Two more useful commands:
 
 ```bash
-npm run build     # production build (96.6 kB first load JS for /, it is small)
+npm run build     # production build (about 97 kB first load JS for /, it is small)
 npm run validate  # reruns the scoring in the terminal and checks the rankings
 ```
 
@@ -57,10 +59,16 @@ this site to the planet's value?":
 
 ```
 similarity = 1 - |value - target| / tolerance      (clamped to 0..1)
-score = 100 * sum(weight * similarity) / sum(weight)
+score = 100 * sum(weight * similarity) / sum(weight)   over scorable axes only
 ```
 
 We used this because it is easy to understand, not z-score or anything fancy.
+
+Some axes are impossible for any Earth site: Earth's atmosphere and magnetic field shield
+the surface, so nothing matches the lunar or Martian radiation dose, and no Earth day
+lasts 336 hours. Those are excluded from the weighted mean and reported separately as
+structural mismatch. Averaging them in would only scale every score by the same constant
+and hide the finding, so we show it instead.
 A site that exactly matches the Mars temperature gets similarity 1.0 for that
 parameter; a site that is one tolerance-band away gets 0. Every weight, target and
 tolerance lives in `src/data/config.json`, so if you disagree with one you can just
@@ -69,20 +77,38 @@ edit it (or use the profile builder in the app).
 Confidence is separate from score: `completeness * resolution tier * 100`. Sites
 with sparse data get a dashed marker on the map so you know not to trust them fully.
 
-## Datasets we used
+## Where the numbers come from
 
-All free/open. Full details (versions, URLs, access dates, how we handled estimates)
-are in `docs/PROVENANCE.md`, which the app also serves at `/docs/PROVENANCE.md`.
+8 of the 13 parameters are measured or exactly derived, and you can regenerate them
+yourself. 5 are our estimates and are labelled as such everywhere.
 
-- [NASA POWER](https://power.larc.nasa.gov/) - temperature, precipitation, humidity, pressure, daylight
-- [NASA SRTM / NASADEM](https://lpdaac.usgs.gov/products/nasadem_hgtv001/) - elevation, slope
-- [LRO Diviner / LOLA](https://pds-geosciences.wustl.edu/missions/lro/diviner.htm) - Moon temperature and terrain baseline
-- [MGS TES / MOLA](https://pds-geosciences.wustl.edu/missions/mgs/tes.htm) - Mars temperature and terrain baseline
-- [LRO CRaTER / Curiosity RAD](https://pds-geosciences.wustl.edu/missions/lro/crater.htm) - radiation targets (Moon 380 µSv/day, Mars 210 µSv/day)
-- [MODIS / MERRA-2](https://earthdata.nasa.gov/) - dust activity proxy
-- [NASA SEDAC GPW](https://sedac.ciesin.columbia.edu/data/collection/gpw-v4) - isolation index
-- [USGS Landsat / ASTER](https://earthexplorer.usgs.gov/) - soil composition proxy
-- [MRO CRISM](https://pds-geosciences.wustl.edu/missions/mro/crism.htm) - aqueous geochemistry reference
+**Measured** (retrieved 2026-10-10, reproducible, no API key):
+
+- [NASA POWER](https://power.larc.nasa.gov/) - temperature, temperature range, pressure, humidity, precipitation
+- [SRTM 30 m](https://api.opentopodata.org/) and [ASTER 30 m](https://asterweb.jpl.nasa.gov/) - elevation and slope
+
+**Derived:** daylight hours at the summer solstice, computed exactly from latitude.
+
+**Estimated by us:** radiation, soil composition, dust activity, isolation and aqueous
+geochemistry. See `docs/PROVENANCE.md`.
+
+Run the retrieval yourself:
+
+```bash
+python3 scripts/fetch_power.py
+python3 scripts/fetch_dem.py
+```
+
+One thing worth knowing: POWER is a coarse grid, so at steep sites it samples the wrong
+elevation. Mauna Kea's grid cell sits at 636 m while the summit is 4147 m, which makes
+POWER report +20.9 C for a mountain that is actually about -2 C. We correct temperature
+with a 6.5 C/km lapse rate and pressure with the barometric formula, and we lower the
+resolution tier wherever that correction is doing a lot of work. Both corrections are in
+`scripts/` and in `docs/PROVENANCE.md`.
+
+Radiation targets only: [LRO CRaTER](https://pds-geosciences.wustl.edu/missions/lro/crater.htm)
+(Moon 380 µSv/day) and [Curiosity RAD](https://pds-geosciences.wustl.edu/missions/msl/)
+(Mars 210 µSv/day).
 
 Map tiles are OpenStreetMap, OpenTopoMap and Esri World Imagery (all free tiers).
 Site photos were removed: the picsum.photos placeholders showed landscapes that are
@@ -109,9 +135,11 @@ docs/                   # provenance, validation, storyboard, judge Q&A etc.
 
 ## Known issues / future work
 
-- Live NASA data pipeline (automatic retrieval and validation scripts): **planned**, not built yet.
-  The app runs on a curated sample dataset bundled with the app; `scripts/fetch_analog_data.py`
-  is a starter for pulling live NASA POWER values.
+- Live NASA data pipeline: **planned**. The two retrieval scripts in `scripts/` are one-shot
+  and write JSON to a temporary folder; they are not wired into a scheduler or a validation
+  loop yet, and the values in `src/data/sites.json` were generated by running them by hand.
+- Five parameters (radiation, soil, dust, isolation, aqueous geochemistry) are our estimates,
+  not measurements. Replacing them with real retrievals is the next scientific step.
 - Site photos are removed for now; we want real NASA/Wikimedia field photos with
   attribution before any real use.
 - A tilted "3D" view of the map was tried as a pure-CSS effect and did not behave

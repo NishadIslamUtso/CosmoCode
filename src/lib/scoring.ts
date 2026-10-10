@@ -18,6 +18,7 @@ import type {
   Profile,
   ScoredSite,
   Site,
+  StructuralMismatch,
   TargetOverride,
 } from './types';
 
@@ -37,8 +38,51 @@ export function confidence(site: Site): number {
   return Math.round(site.completeness * site.resolutionTier * 100);
 }
 
+/**
+ * Find the axes that no site in the dataset can score on at all.
+ *
+ * Radiation is the clearest case: Earth's atmosphere and magnetic field shield
+ * the surface, so every site sits more than one tolerance band away from the
+ * lunar or Martian dose rate. The same is true of pressure on Mars and of the
+ * lunar day length.
+ *
+ * These are real findings, but they are not a property of any one site, so they
+ * are kept out of the weighted mean and reported alongside it. Including them
+ * would multiply every score by the same constant, which buries the finding
+ * instead of showing it.
+ */
+export function structuralMismatch(
+  sites: Site[],
+  profile: Profile,
+  parameters: Parameter[]
+): StructuralMismatch {
+  const keys: ParameterKey[] = [];
+  for (const p of parameters) {
+    const t = profile.targets[p.key];
+    const anyNonZero = sites.some(
+      (s) => similarity(s.values[p.key], t.target, t.tolerance) > 0
+    );
+    if (!anyNonZero) keys.push(p.key);
+  }
+  const blocked = new Set(keys);
+  return {
+    keys,
+    labels: parameters.filter((p) => blocked.has(p.key)).map((p) => p.label),
+    weight: keys.reduce((acc, k) => acc + profile.targets[k].weight, 0),
+    scorableWeight: parameters
+      .filter((p) => !blocked.has(p.key))
+      .reduce((acc, p) => acc + profile.targets[p.key].weight, 0),
+  };
+}
+
 /** Score one site against one profile, keeping every intermediate number. */
-export function scoreSite(site: Site, profile: Profile, parameters: Parameter[]): ScoredSite {
+export function scoreSite(
+  site: Site,
+  profile: Profile,
+  parameters: Parameter[],
+  structural: StructuralMismatch
+): ScoredSite {
+  const blocked = new Set(structural.keys);
   const breakdown: BreakdownRow[] = parameters.map((p) => {
     const t = profile.targets[p.key];
     const value = site.values[p.key];
@@ -56,17 +100,19 @@ export function scoreSite(site: Site, profile: Profile, parameters: Parameter[])
     };
   });
 
-  const weightSum = breakdown.reduce((acc, b) => acc + b.weight, 0);
-  const raw = breakdown.reduce((acc, b) => acc + b.contribution, 0);
+  const usable = breakdown.filter((b) => !blocked.has(b.key));
+  const weightSum = usable.reduce((acc, b) => acc + b.weight, 0);
+  const raw = usable.reduce((acc, b) => acc + b.contribution, 0);
   const score = weightSum > 0 ? (100 * raw) / weightSum : 0;
 
-  return { site, score, confidence: confidence(site), breakdown };
+  return { site, score, confidence: confidence(site), breakdown, structural };
 }
 
 /** Score every site, best first. Ties break alphabetically. */
 export function scoreAll(sites: Site[], profile: Profile, parameters: Parameter[]): ScoredSite[] {
+  const structural = structuralMismatch(sites, profile, parameters);
   return sites
-    .map((s) => scoreSite(s, profile, parameters))
+    .map((s) => scoreSite(s, profile, parameters, structural))
     .sort((a, b) => b.score - a.score || a.site.name.localeCompare(b.site.name));
 }
 

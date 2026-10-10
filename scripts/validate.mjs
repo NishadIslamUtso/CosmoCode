@@ -43,11 +43,23 @@ for (const [id, profile] of profileEntries) {
   check(`${id}: similarities within 0..1`, scored.every((s) => s.breakdown.every((b) => b.similarity >= 0 && b.similarity <= 1)));
   check(`${id}: confidence within 0..100`, scored.every((s) => s.confidence >= 0 && s.confidence <= 100));
   check(`${id}: ranking sorted descending`, scored.every((s, i) => i === 0 || scored[i - 1].score >= s.score));
-  check(`${id}: score equals 100 * sum(weight * similarity) / sum(weight)`, scored.every((s) => {
-    const w = s.breakdown.reduce((acc, b) => acc + b.weight, 0);
-    const raw = s.breakdown.reduce((acc, b) => acc + b.contribution, 0);
-    return Math.abs(s.score - (100 * raw) / w) < 1e-9;
-  }));
+  check(
+    `${id}: score equals 100 * sum(weight * similarity) / sum(weight) over scorable axes only`,
+    scored.every((s) => {
+      const usable = s.breakdown.filter((b) => !s.structural.keys.includes(b.key));
+      const w = usable.reduce((acc, b) => acc + b.weight, 0);
+      const raw = usable.reduce((acc, b) => acc + b.contribution, 0);
+      return Math.abs(s.score - (100 * raw) / w) < 1e-9;
+    })
+  );
+  check(
+    `${id}: structurally unreachable axes score 0 for every site and are excluded`,
+    scored.every((s) =>
+      s.structural.keys.every(
+        (k) => s.breakdown.find((b) => b.key === k).similarity === 0
+      )
+    )
+  );
 }
 console.log('');
 
@@ -67,15 +79,20 @@ for (const [id, profile] of profileEntries) {
   printTable(`${profile.name} profile`, results[id]);
 }
 
+console.log('Structural mismatch:');
 for (const [id, profile] of profileEntries) {
-  const zeros = parameters
-    .filter((p) => results[id].every((s) => s.breakdown.find((b) => b.key === p.key).similarity === 0))
-    .map((p) => p.key);
-  console.log(`${profile.name}: parameters where every site scores 0 similarity: ${zeros.length > 0 ? zeros.join(', ') : 'none'}`);
+  const st = results[id][0].structural;
+  const share = ((100 * st.weight) / (st.weight + st.scorableWeight)).toFixed(0);
+  console.log(
+    `${profile.name}: no site can score on ${st.keys.length ? st.keys.join(', ') : 'nothing'}` +
+      ` (${st.labels.join(', ') || 'none'})`
+  );
+  console.log(
+    `  ${st.weight.toFixed(2)} of ${(st.weight + st.scorableWeight).toFixed(2)} total weight (${share}%) is unreachable and is excluded from the mean.`
+  );
 }
-console.log('(expected: radiation everywhere, since Earth shields the surface; plus tempRange for the Moon,');
-console.log(' since no Earth site reproduces the 250 C lunar day/night swing, and pressure for Mars,');
-console.log(' since no Earth site has 0.6 kPa air)');
+console.log('These axes are reported separately rather than averaged in, because averaging them');
+console.log('would only scale every score by the same constant and hide the finding.');
 console.log('');
 
 if (failures > 0) {

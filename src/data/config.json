@@ -4,79 +4,105 @@
       "key": "temperature",
       "label": "Mean temperature",
       "unit": "°C",
-      "description": "Annual mean air temperature at the site."
+      "description": "Annual mean air temperature at the site.",
+      "source": "measured",
+      "sourceNote": "NASA POWER T2M annual climatology, corrected from the POWER grid elevation to the site elevation using a 6.5 C/km lapse rate."
     },
     {
       "key": "tempRange",
       "label": "Temperature range",
       "unit": "°C",
-      "description": "Typical day to night temperature swing."
+      "description": "Typical day to night temperature swing.",
+      "source": "measured",
+      "sourceNote": "NASA POWER T2M_MAX minus T2M_MIN annual climatology, a grid scale day to night range."
     },
     {
       "key": "radiation",
       "label": "Radiation dose",
       "unit": "µSv/day",
-      "description": "Surface dose rate at the site."
+      "description": "Surface dose rate at the site.",
+      "source": "estimated",
+      "sourceNote": "Literature-informed estimate of the surface dose rate. Not retrieved from an instrument."
     },
     {
       "key": "slope",
       "label": "Terrain slope",
       "unit": "°",
-      "description": "Mean local slope over a 1 km window."
+      "description": "Mean local slope over a 1 km window.",
+      "source": "derived",
+      "sourceNote": "Mean absolute gradient of a 3x3 patch of the same DEM, about 250 m across, converted to degrees."
     },
     {
       "key": "soil",
       "label": "Soil composition",
       "unit": "index",
-      "description": "0 to 100. How closely the surface material matches the target regolith (100 = mare basalt / basaltic Mars soil)."
+      "description": "0 to 100. How closely the surface material matches the target regolith (100 = mare basalt / basaltic Mars soil).",
+      "source": "estimated",
+      "sourceNote": "Literature-informed 0 to 100 index of how closely the surface material matches the target regolith."
     },
     {
       "key": "pressure",
       "label": "Atmospheric pressure",
       "unit": "kPa",
-      "description": "Mean surface atmospheric pressure."
+      "description": "Mean surface atmospheric pressure.",
+      "source": "measured",
+      "sourceNote": "NASA POWER PS annual climatology, corrected to the site elevation with the barometric formula and an 8.4 km scale height."
     },
     {
       "key": "daylight",
       "label": "Daylight",
       "unit": "h/day",
-      "description": "Hours of daylight on the longest day of the year."
+      "description": "Hours of daylight on the longest day of the year.",
+      "source": "derived",
+      "sourceNote": "Computed from latitude for the summer solstice with the standard solar geometry formula. Exact, not measured."
     },
     {
       "key": "precipitation",
       "label": "Precipitation",
       "unit": "mm/yr",
-      "description": "Mean annual precipitation (rain plus snow water equivalent)."
+      "description": "Mean annual precipitation (rain plus snow water equivalent).",
+      "source": "measured",
+      "sourceNote": "NASA POWER PRECTOTCORR annual climatology times 365.25. Grid smoothed, so it is the weakest of the measured set."
     },
     {
       "key": "humidity",
       "label": "Relative humidity",
       "unit": "%",
-      "description": "Mean annual relative humidity."
+      "description": "Mean annual relative humidity.",
+      "source": "measured",
+      "sourceNote": "NASA POWER RH2M annual climatology. No elevation correction applied, so treat with care at high sites."
     },
     {
       "key": "dust",
       "label": "Dust activity",
       "unit": "index",
-      "description": "0 to 100. Aeolian dust and aerosol loading proxy."
+      "description": "0 to 100. Aeolian dust and aerosol loading proxy.",
+      "source": "estimated",
+      "sourceNote": "Literature-informed 0 to 100 aeolian dust and aerosol activity proxy."
     },
     {
       "key": "isolation",
       "label": "Isolation",
       "unit": "index",
-      "description": "0 to 100. Remoteness from people and infrastructure."
+      "description": "0 to 100. Remoteness from people and infrastructure.",
+      "source": "estimated",
+      "sourceNote": "Literature-informed 0 to 100 remoteness from people and infrastructure."
     },
     {
       "key": "elevation",
       "label": "Elevation",
       "unit": "m",
-      "description": "Elevation above sea level."
+      "description": "Elevation above sea level.",
+      "source": "measured",
+      "sourceNote": "SRTM 30 m, or ASTER 30 m at the polar sites SRTM does not cover."
     },
     {
       "key": "aqueous",
       "label": "Aqueous geochemistry",
       "unit": "index",
-      "description": "0 to 100. How closely the water and rock chemistry matches past or present aqueous environments."
+      "description": "0 to 100. How closely the water and rock chemistry matches past or present aqueous environments.",
+      "source": "estimated",
+      "sourceNote": "Literature-informed 0 to 100 index of aqueous geochemistry match. The first version of this axis."
     }
   ],
   "profiles": {
@@ -117,7 +143,7 @@
         },
         "daylight": {
           "target": 336.0,
-          "tolerance": 400.0,
+          "tolerance": 300.0,
           "weight": 0.4
         },
         "precipitation": {
@@ -143,7 +169,7 @@
         "elevation": {
           "target": 1000.0,
           "tolerance": 3000.0,
-          "weight": 0.5
+          "weight": 0.3
         },
         "aqueous": {
           "target": 10.0,
@@ -320,5 +346,26 @@
     "SEDAC GPW": "https://sedac.ciesin.columbia.edu/data/collection/gpw-v4",
     "USGS Landsat/ASTER": "https://earthexplorer.usgs.gov/",
     "MRO CRISM": "https://pds-geosciences.wustl.edu/missions/mro/crism.htm"
+  },
+  "retrieval": {
+    "retrievedOn": "2026-10-10",
+    "climatology": "NASA POWER source-native resolution annual climatology",
+    "dem": "SRTM 30 m via opentopodata, ASTER 30 m fallback at polar sites",
+    "endpoints": {
+      "POWER": "https://power.larc.nasa.gov/api/temporal/climatology/point",
+      "SRTM": "https://api.opentopodata.org/v1/srtm30m",
+      "ASTER": "https://api.opentopodata.org/v1/aster30m"
+    },
+    "scripts": [
+      "scripts/fetch_power.py",
+      "scripts/fetch_dem.py"
+    ],
+    "estimatedParameters": [
+      "radiation",
+      "soil",
+      "dust",
+      "isolation",
+      "aqueous"
+    ]
   }
 }

@@ -1,49 +1,131 @@
 # Data provenance
 
-Where every number in CosmoCode comes from. The app serves this file at `/docs/PROVENANCE.md`.
+Where every number in `src/data/sites.json` comes from, and what we had to estimate.
 
-## Important context
+**Short version:** 8 of the 13 parameters are measured or exactly derived, and you can
+reproduce them yourself with two scripts in this repo. 5 are our own estimates, listed by
+name below. We no longer claim to have retrieved anything we did not actually retrieve.
 
-The site values in `src/data/sites.json` are **curated sample data**. They are realistic estimates assembled from the public datasets below and from the analog-site literature, not a live pull for every parameter of every site. Each site carries a `completeness` (0..1) and a `resolutionTier` (0.5 coarse, 0.75 regional, 1.0 site-scale) so you can see how much to trust it. A live NASA data pipeline is planned; `scripts/fetch_analog_data.py` is a starter sketch for it.
+## Parameter by parameter
 
-## Datasets
+| Parameter | Status | Source |
+| --- | --- | --- |
+| Mean temperature | **measured** | NASA POWER `T2M`, annual climatology, corrected to the site elevation |
+| Temperature range | **measured** | NASA POWER `T2M_MAX` minus `T2M_MIN`, annual climatology |
+| Atmospheric pressure | **measured** | NASA POWER `PS`, annual climatology, corrected to the site elevation |
+| Relative humidity | **measured** | NASA POWER `RH2M`, annual climatology |
+| Precipitation | **measured** | NASA POWER `PRECTOTCORR`, annual climatology, times 365.25 |
+| Elevation | **measured** | SRTM 30 m, or ASTER 30 m where SRTM has no coverage |
+| Slope | **derived** | Gradient of a 3x3 patch of the same DEM, about 250 m across |
+| Daylight | **derived** | Computed from latitude for the summer solstice. Exact, not measured |
+| Radiation dose | *estimated* | Literature-informed. No instrument data |
+| Soil composition | *estimated* | Literature-informed 0 to 100 index |
+| Dust activity | *estimated* | Literature-informed 0 to 100 index |
+| Isolation | *estimated* | Literature-informed 0 to 100 index |
+| Aqueous geochemistry | *estimated* | Literature-informed 0 to 100 index |
 
-| Dataset | Used for | Product / version | URL | Access date |
-| --- | --- | --- | --- | --- |
-| NASA POWER | temperature, precipitation, humidity, pressure, daylight | POWER climatology API, 1991-2020 baseline | https://power.larc.nasa.gov/ | 2026-10-10 |
-| NASA SRTM / NASADEM | elevation, slope | NASADEM HGT v001, 1 arc-second | https://lpdaac.usgs.gov/products/nasadem_hgtv001/ | 2026-10-10 |
-| LRO Diviner / LOLA | Moon temperature and terrain baseline | Diviner level-2 products via PDS | https://pds-geosciences.wustl.edu/missions/lro/diviner.htm | 2026-10-10 |
-| MGS TES / MOLA | Mars temperature and terrain baseline | TES level-2 via PDS | https://pds-geosciences.wustl.edu/missions/mgs/tes.htm | 2026-10-10 |
-| LRO CRaTER | Moon radiation target | CRaTER dose measurements via PDS | https://pds-geosciences.wustl.edu/missions/lro/crater.htm | 2026-10-10 |
-| Curiosity RAD | Mars radiation target | RAD surface dose via PDS | https://pds-geosciences.wustl.edu/missions/msl/ | 2026-10-10 |
-| MODIS / MERRA-2 | dust activity proxy | MODIS aerosol and MERRA-2 via NASA Earthdata | https://earthdata.nasa.gov/ | 2026-10-10 |
-| NASA SEDAC GPW | isolation index | Gridded Population of the World v4 | https://sedac.ciesin.columbia.edu/data/collection/gpw-v4 | 2026-10-10 |
-| USGS Landsat / ASTER | soil composition proxy | Landsat 8/9 and ASTER via EarthExplorer | https://earthexplorer.usgs.gov/ | 2026-10-10 |
-| MRO CRISM | aqueous geochemistry reference | CRISM via PDS | https://pds-geosciences.wustl.edu/missions/mro/crism.htm | 2026-10-10 |
+## How to reproduce the measured values
 
-Map tiles: OpenStreetMap, OpenTopoMap and Esri World Imagery (all free tiers, no API key).
+```bash
+python3 scripts/fetch_power.py     # writes /tmp/gen/power_raw.json
+python3 scripts/fetch_dem.py       # writes /tmp/gen/dem_raw.json
+```
 
-## Planetary targets (src/data/config.json)
+Neither script needs an API key or an account. Both were run on **2026-10-10**, and that
+is the date the values in `sites.json` come from.
 
-- **Moon base profile.** Equatorial/mare global-mean reference for a permanent lunar base. Radiation target 380 µSv/day, from LRO CRaTER measurements of the lunar surface dose rate. South-pole (e.g. Artemis) targets are future work; the current profile is not a south-pole model.
-- **Mars base profile.** Global-mean reference for a permanent Mars base. Radiation target 210 µSv/day, from Curiosity RAD surface measurements.
+| Source | Endpoint | Used for |
+| --- | --- | --- |
+| NASA POWER | `https://power.larc.nasa.gov/api/temporal/climatology/point` | temperature, temperature range, pressure, humidity, precipitation |
+| SRTM 30 m | `https://api.opentopodata.org/v1/srtm30m` | elevation and slope |
+| ASTER 30 m | `https://api.opentopodata.org/v1/aster30m` | elevation and slope at the polar sites SRTM does not cover |
 
-Radiation is stored in µSv/day (microsieverts per day).
+## The elevation correction, and why it was needed
 
-## What is measured and what is judgement
+NASA POWER is a gridded reanalysis. Its cells are coarse, and at sites with steep local
+terrain the grid samples the wrong place entirely. Two examples:
 
-- **Targets** are traceable to an instrument or a dataset. See the table above, and the planetary targets section below, for the citation behind each one.
-- **Tolerances** are how far a site can sit from a target before it scores zero. These are our judgement, not a published number. They are set so that each axis still separates the 24 sites instead of flattening them all to 0 or 1.
-- **Weights** say how much an axis counts. These are our judgement too, chosen from what matters for a habitat: thermal, terrain, water and dust. Every weight is editable in `src/data/config.json` and in the app's custom profile builder, and the ranking recomputes as you change it.
+| Site | POWER grid elevation | True elevation (30 m DEM) | POWER raw temperature | After correction | Real value |
+| --- | --- | --- | --- | --- | --- |
+| Mauna Kea | 636 m | 4147 m | +20.9 C | -1.9 C | about -2 C |
+| Death Valley | 846 m | -82 m | +19.1 C | +25.1 C | about 25 C |
+| Danakil Depression | 1063 m | -91 m | +26.0 C | +33.5 C | about 34 C |
 
-Because tolerances and weights are judgement, we publish them rather than bury them, and `npm run validate` re-runs the whole model so anybody can check the arithmetic.
+So we correct two parameters from the grid elevation to the site elevation:
+
+- **Temperature**: `T_site = T_grid - 6.5 C/km x (h_site - h_grid)`, the standard
+  free-air lapse rate.
+- **Pressure**: `P_site = P_grid x exp(-(h_site - h_grid) / 8400 m)`, the barometric
+  formula with an 8.4 km scale height.
+
+Both are approximations. They are recorded in `scripts/` and in the `sourceNote` field of
+each parameter in `src/data/config.json`, and they are the reason the resolution tier
+below still costs confidence at sites with a large elevation gap.
+
+## Resolution tier is no longer a guess
+
+Each site carries a `resolutionTier` derived from the gap between the POWER grid elevation
+and the true site elevation, because the correction above is approximate and because
+humidity and precipitation cannot be corrected at all:
+
+| Gap between grid and site elevation | Tier |
+| --- | --- |
+| 300 m or less | 1.0 |
+| up to 1000 m | 0.9 |
+| up to 2000 m | 0.8 |
+| more than 2000 m | 0.7 |
+
+Sites such as Mauna Kea, Teide, Etna, Danakil and Ladakh land in the bottom two rows.
+That is real: our climate data genuinely does not resolve them well, and their dashed
+markers on the map say so.
+
+## The estimated parameters, honestly
+
+Radiation, soil composition, dust activity, isolation and aqueous geochemistry are
+**our judgement, not measurements.** They are informed by the analog-site literature and
+by the datasets below, but no value was pulled from them:
+
+- NASA SEDAC GPW v4, for a sense of remoteness
+- USGS Landsat / ASTER and MRO CRISM, for a sense of surface composition
+- MODIS / MERRA-2, for a sense of dust loading
+- LRO CRaTER and Curiosity RAD, for the radiation *targets* (not the site values)
+
+We list these so you can see what we were thinking and where we would go to replace the
+estimates with real data. Treat any ranking that leans on them with more caution than one
+driven by temperature or pressure.
+
+## Planetary targets
+
+- **Moon base.** Equatorial/mare global-mean reference for a permanent lunar base. Radiation
+  target 380 uSv/day from LRO CRaTER, temperature and terrain baseline from LRO Diviner and
+  LOLA. South-pole (e.g. Artemis) targets are future work.
+- **Mars base.** Global-mean reference. Radiation target 210 uSv/day from Curiosity RAD,
+  temperature and terrain baseline from MGS TES and MOLA.
+
+Both dose rates are unreachable at Earth's surface, which is the point of the structural
+mismatch reported in `docs/VALIDATION.md`.
+
+## What is measured versus what is judgement
+
+- **Targets** trace to an instrument or a dataset, cited above.
+- **Tolerances** are our judgement. They set how far a site can sit from a target before it
+  scores zero.
+- **Weights** are our judgement too, chosen from what matters for a habitat.
+
+Both are editable in `src/data/config.json` and in the app's profile builder, and
+`docs/VALIDATION.md` reports how much the ranking moves when you change them.
 
 ## Site photos
 
-Site photos were removed. The picsum.photos placeholders showed landscapes that are not the actual sites, which is worse than no photo for a science demo. Real NASA/Wikimedia photos with attribution go back here; the `imageUrl` / `imageCredit` fields are still in the type and guarded in the UI.
+Site photos were removed. The earlier placeholders showed landscapes that are not the real
+sites, which is worse than no photo for a science demo. The `imageUrl` and `imageCredit`
+fields stay in the type and the render stays guarded, so real NASA or Wikimedia photos with
+attribution can go back in without touching the components.
 
-## Handling of estimates
+## Known limitations
 
-- Values with low completeness (below 0.8) or a coarse resolution tier (0.5) are rougher; those sites get a dashed marker on the map and a lower confidence score.
-- Where a site-level measurement was unavailable, a regional or literature value was used and the completeness was lowered.
-- All 24 sites and 13 parameters are listed in `src/data/sites.json`; the scoring re-run is `scripts/validate.mjs` (see `docs/VALIDATION.md`).
+- Power is grid smoothed. Precipitation is the weakest of the measured set.
+- The elevation correction is an approximation, not a downscaling model.
+- ASTER replaces SRTM at five polar sites, so those elevations come from a different sensor.
+- Five parameters remain estimates. See the table at the top.
+- There is no uncertainty propagation. The score is a point estimate.

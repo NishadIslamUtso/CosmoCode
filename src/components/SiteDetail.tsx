@@ -9,9 +9,15 @@
 // working that scripts/validate.mjs re-runs in the terminal. The panel and
 // the validator read the same rows, so they cannot disagree.
 
-import { fmt } from '@/lib/data';
+import { fmt, parameters } from '@/lib/data';
 import type { ScoredSite } from '@/lib/types';
 import SimilarityChart from './SimilarityChart';
+
+const SOURCE_STYLE: Record<string, string> = {
+  measured: 'text-[#15803d]',
+  derived: 'text-[#1d4ed8]',
+  estimated: 'text-[#a16207]',
+};
 
 interface Props {
   row: ScoredSite;
@@ -20,8 +26,9 @@ interface Props {
 }
 
 export default function SiteDetail({ row, sourceLinks, onClose }: Props) {
-  const { site, score, confidence, breakdown } = row;
-  const zeroRows = breakdown.filter((b) => b.similarity === 0);
+  const { site, score, confidence, breakdown, structural } = row;
+  const blocked = new Set(structural.keys);
+  const sourceOf = new Map(parameters.map((p) => [p.key, p.source]));
 
   return (
     <aside className="rounded-lg border border-border bg-surface">
@@ -45,9 +52,10 @@ export default function SiteDetail({ row, sourceLinks, onClose }: Props) {
         <SimilarityChart rows={breakdown} />
       </div>
 
-      {zeroRows.length > 0 ? (
+      {structural.keys.length > 0 ? (
         <p className="px-4 text-xs text-muted">
-          Zero similarity on: {zeroRows.map((z) => z.label).join(', ')}.
+          Unreachable for every Earth site, so excluded from the score:{' '}
+          {structural.labels.join(', ')}.
         </p>
       ) : null}
 
@@ -73,20 +81,30 @@ export default function SiteDetail({ row, sourceLinks, onClose }: Props) {
                 <th className="py-1 pr-3 font-medium">Target</th>
                 <th className="py-1 pr-3 font-medium">Tolerance</th>
                 <th className="py-1 pr-3 font-medium">Weight</th>
+                <th className="py-1 pr-3 font-medium">Source</th>
                 <th className="py-1 pr-3 font-medium">Similarity</th>
               </tr>
             </thead>
             <tbody>
               {breakdown.map((b) => (
-                <tr key={b.key} className="border-t border-border">
+                <tr
+                  key={b.key}
+                  className={blocked.has(b.key) ? 'border-t border-border text-muted' : 'border-t border-border'}
+                >
                   <td className="py-1 pr-3">
                     {b.label}
                     <span className="text-muted"> ({b.unit})</span>
+                    {blocked.has(b.key) ? (
+                      <span className="block text-xs">unreachable, not scored</span>
+                    ) : null}
                   </td>
                   <td className="py-1 pr-3 tabular-nums">{fmt(b.value, 2)}</td>
                   <td className="py-1 pr-3 tabular-nums">{fmt(b.target, 2)}</td>
                   <td className="py-1 pr-3 tabular-nums">{fmt(b.tolerance, 2)}</td>
                   <td className="py-1 pr-3 tabular-nums">{fmt(b.weight, 2)}</td>
+                  <td className={`py-1 pr-3 ${SOURCE_STYLE[sourceOf.get(b.key) ?? 'estimated']}`}>
+                    {sourceOf.get(b.key) ?? 'estimated'}
+                  </td>
                   <td className="py-1 pr-3 tabular-nums">
                     {fmt(b.similarity * 100)}%
                   </td>

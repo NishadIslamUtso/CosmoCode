@@ -43,12 +43,35 @@ export interface Site {
   imageCredit?: string;
 }
 
+/** How a parameter's value was obtained. Shown per row in the detail panel. */
+export type ParameterSource = 'measured' | 'derived' | 'estimated';
+
 /** One measured axis, for example mean temperature in degrees Celsius. */
 export interface Parameter {
   key: ParameterKey;
   label: string;
   unit: string;
   description: string;
+  source: ParameterSource;
+  sourceNote: string;
+}
+
+/**
+ * Axes that no site in the dataset can score on at all, for example radiation:
+ * Earth's atmosphere shields the surface, so every site is more than one
+ * tolerance band from the lunar dose rate.
+ *
+ * These are excluded from the weighted mean and reported separately. Averaging
+ * them in would only scale every score down by a constant, which hides the
+ * finding instead of showing it.
+ */
+export interface StructuralMismatch {
+  keys: ParameterKey[];
+  labels: string[];
+  /** Weight removed from the mean because it is unreachable. */
+  weight: number;
+  /** Weight the score is actually computed over. */
+  scorableWeight: number;
 }
 
 /** What a profile wants on one axis, and how much that axis counts. */
@@ -109,4 +132,6 @@ export interface ScoredSite {
   score: number;
   confidence: number;
   breakdown: BreakdownRow[];
+  /** The same object for every row in a ranking. */
+  structural: StructuralMismatch;
 }

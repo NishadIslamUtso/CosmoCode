@@ -32,27 +32,30 @@ Moon base profile (top 5 of 24):
 
 | Rank | Site | Score | Confidence |
 | --- | --- | --- | --- |
-| 1 | McMurdo Dry Valleys | 48.1 | 85 |
-| 2 | Atacama Desert | 42.8 | 90 |
-| 3 | Namib Desert | 37.5 | 56 |
-| 4 | East Antarctic Plateau | 34.1 | 80 |
-| 5 | Craters of the Moon | 32.7 | 85 |
+| 1 | Atacama Desert | 48.7 | 81 |
+| 2 | McMurdo Dry Valleys | 46.0 | 85 |
+| 3 | Devon Island | 41.4 | 85 |
+| 4 | East Antarctic Plateau | 39.6 | 80 |
+| 5 | Erta Ale | 38.9 | 63 |
 
 Mars base profile (top 5 of 24):
 
 | Rank | Site | Score | Confidence |
 | --- | --- | --- | --- |
-| 1 | Atacama Desert | 53.1 | 90 |
-| 2 | Namib Desert | 42.2 | 56 |
-| 3 | East Antarctic Plateau | 40.4 | 80 |
-| 4 | McMurdo Dry Valleys | 37.6 | 85 |
-| 5 | Pilbara | 35.2 | 60 |
+| 1 | Atacama Desert | 64.7 | 81 |
+| 2 | East Antarctic Plateau | 54.5 | 80 |
+| 3 | Namib Desert | 46.2 | 68 |
+| 4 | McMurdo Dry Valleys | 45.6 | 85 |
+| 5 | Wadi Rum | 45.1 | 85 |
 
 Full top-10 tables and all checks: `docs/VALIDATION.md`.
 
 ## Honest limits
 
-- Site values are curated sample data from NASA datasets and papers, labeled with completeness and resolution tier. Not a live pull (a starter script exists).
+- **8 of 13 parameters are measured or exactly derived** (NASA POWER climatology, SRTM/ASTER 30 m DEM, and daylight computed from latitude), and you can regenerate them with `scripts/fetch_power.py` and `scripts/fetch_dem.py`. Neither needs an API key.
+- **5 parameters are our estimates**: radiation, soil composition, dust activity, isolation and aqueous geochemistry. They are labelled as estimates in the app's detail panel.
+- Temperature and pressure are corrected from the POWER grid elevation to the true site elevation. Without that correction Mauna Kea reads +20.9 C instead of about -2 C.
+- Radiation and pressure are unreachable for every Earth site, so they are excluded from the weighted mean and reported separately rather than averaged in.
 - Planetary targets are global means. Moon profile = equatorial/mare global-mean reference; south-pole (e.g. Artemis) targets are future work. Radiation targets: Moon 380 µSv/day (LRO CRaTER), Mars 210 µSv/day (Curiosity RAD).
 - Radiation and pressure score 0 for every Earth site, because Earth shields the surface. Shown, not hidden.
 
@@ -67,4 +70,4 @@ npm run build
 
 ## Data
 
-NASA POWER, SRTM/NASADEM, LRO Diviner/CRaTER, MGS TES, Curiosity RAD, MODIS/MERRA-2, SEDAC GPW, USGS Landsat/ASTER, MRO CRISM. Details: `docs/PROVENANCE.md`.
+Measured: NASA POWER climatology and SRTM/ASTER 30 m DEM, retrieved 2026-10-10 and reproducible from `scripts/`. Targets: LRO CRaTER and Curiosity RAD for radiation. Estimated by us: radiation site values, soil, dust, isolation and aqueous geochemistry. Full detail: `docs/PROVENANCE.md`.

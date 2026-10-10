@@ -121,7 +121,8 @@ export default function Home() {
       <section className="bg-canvas">
         <h1 className="text-3xl font-bold">Earth Analog Finder</h1>
         <p className="mt-3 max-w-3xl text-sm text-muted">
-          This is a frontend prototype. It runs on a curated sample dataset bundled with the app. A
+          This is a frontend prototype. It runs on a curated sample dataset bundled with the app:
+          eight of thirteen parameters are measured and reproducible, five are our estimates. A
           live NASA data pipeline is planned.
         </p>
         <p className="mt-3 max-w-3xl text-sm text-muted">
@@ -160,6 +161,25 @@ export default function Home() {
         </button>
         <span className="text-xs text-muted">{activeProfile.description}</span>
       </section>
+
+      {ranked.length > 0 && ranked[0].structural.keys.length > 0 ? (
+        <section className="rounded-lg border border-border bg-surface px-4 py-3">
+          <h2 className="text-sm font-semibold">No Earth site can match these</h2>
+          <p className="mt-1 text-xs text-muted">
+            {ranked[0].structural.labels.join(', ')} score zero for all {ranked.length} sites, not
+            because the data is missing but because Earth cannot do them: the atmosphere and
+            magnetic field shield the surface from the dose rate, and no Earth day lasts 336 hours.
+            That is{' '}
+            {(
+              (100 * ranked[0].structural.weight) /
+              (ranked[0].structural.weight + ranked[0].structural.scorableWeight)
+            ).toFixed(0)}%{' '}
+            of the total weight, so it is left out of the weighted mean and reported here
+            instead. Averaging it in would only scale every score by the same constant and hide
+            the finding.
+          </p>
+        </section>
+      ) : null}
 
       <MapView
         rows={filtered}
@@ -216,10 +236,10 @@ export default function Home() {
         <p className="mt-2 text-xs text-muted">
           For each parameter, similarity is 1 minus the distance to the target divided by the
           tolerance, clamped between 0 and 1. The score is 100 times the weighted sum of those
-          similarities divided by the sum of the weights. Confidence is completeness times
-          resolution tier times 100, and it is reported separately. Targets, tolerances and weights
-          all sit in src/data/config.json, and scripts/validate.mjs re-runs the whole thing in the
-          terminal.
+          similarities divided by the sum of the weights, taken over the axes a site can actually
+          score on. Confidence is completeness times resolution tier times 100, and it is reported
+          separately. Targets, tolerances and weights all sit in src/data/config.json, and
+          scripts/validate.mjs re-runs the whole thing in the terminal.
         </p>
       </section>
 
