@@ -18,8 +18,7 @@ It is all clearly labeled in the app and in `docs/PROVENANCE.md`.
 ## What it does
 
 - World map with all 24 sites (Leaflet + free tiles, no API key). Markers are colored
-  by score, and you can switch to a satellite layer or a hillshade overlay. There is
-  also a fun "3D peek" toggle that tilts the map with pure CSS (off by default).
+  by score, and you can switch to a satellite layer or a hillshade overlay.
 - Toggle between **Moon base** and **Mars base** profiles, or build your own.
 - **Custom profile builder** with presets: Lunar geology, Mars arid, and Mars aqueous
   (this one lifts Rio Tinto). You can see little "biggest movers" pills showing which
@@ -115,8 +114,9 @@ docs/                   # provenance, validation, storyboard, judge Q&A etc.
   is a starter for pulling live NASA POWER values.
 - Site photos are removed for now; we want real NASA/Wikimedia field photos with
   attribution before any real use.
-- The 3D peek is just CSS. We thought about a full 3D globe (Cesium etc.) but it
-  slowed everything down and honestly did not add much, so we skipped it.
+- A tilted "3D" view of the map was tried as a pure-CSS effect and did not behave
+  well in use, so it is switched off. We also looked at a full 3D globe (Cesium
+  etc.), but it slowed everything down and did not add much, so we skipped that.
 - Planetary targets are global means. The Moon profile is an equatorial/mare
   global-mean reference; south-pole (e.g. Artemis) targets are future work.
 - The aqueous geochemistry values are our best literature estimates, first version

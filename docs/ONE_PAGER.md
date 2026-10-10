@@ -10,7 +10,7 @@ NASA needs places on Earth that feel like the Moon or Mars: astronaut training, 
 
 ## What it does
 
-- World map (Leaflet, free tiles, no API key) with markers colored by score; street, satellite and hillshade layers; a pure-CSS "3D peek" tilt.
+- World map (Leaflet, free tiles, no API key) with markers colored by score; street, satellite and hillshade layers.
 - Two built-in profiles (Moon base, Mars base) plus a custom profile builder with presets: Lunar geology, Mars arid, Mars aqueous.
 - 13 parameters: temperature, temperature range, radiation, slope, soil composition, pressure, daylight, precipitation, humidity, dust, isolation, elevation, aqueous geochemistry.
 - Per-site detail panel: score breakdown per parameter, confidence rating, NASA source links.

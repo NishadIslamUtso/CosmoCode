@@ -45,8 +45,6 @@ interface Props {
   onSelect: (id: string) => void;
   tile: TileId;
   onTileChange: (id: TileId) => void;
-  peek: boolean;
-  onPeekChange: (v: boolean) => void;
 }
 
 export default function MapView({
@@ -56,8 +54,6 @@ export default function MapView({
   onSelect,
   tile,
   onTileChange,
-  peek,
-  onPeekChange,
 }: Props) {
   const active = TILES.find((t) => t.id === tile) ?? TILES[0];
   const lowConfidence = rows.filter((r) => r.confidence < 75).length;
@@ -83,18 +79,10 @@ export default function MapView({
           ))}
         </div>
 
-        <label className="flex items-center gap-2 text-xs text-muted">
-          <input
-            type="checkbox"
-            checked={peek}
-            onChange={(e) => onPeekChange(e.target.checked)}
-          />
-          3D peek
-        </label>
       </div>
 
-      <div className={`h-[420px] w-full overflow-hidden ${peek ? 'p-6' : ''}`}>
-        <div className={`h-full w-full ${peek ? 'map-peek' : ''}`}>
+      <div className="h-[420px] w-full overflow-hidden">
+        <div className="h-full w-full">
           <MapContainer center={[10, 0]} zoom={2} scrollWheelZoom className="h-full w-full">
             <TileLayer key={active.id} url={active.url} attribution={active.attribution} />
             {rows.map((row) => {

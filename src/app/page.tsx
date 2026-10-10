@@ -52,7 +52,6 @@ export default function Home() {
   });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tile, setTile] = useState<TileId>('street');
-  const [peek, setPeek] = useState(false);
 
   const baseProfile = profiles[baseProfileId];
   const activeProfile =
@@ -169,8 +168,6 @@ export default function Home() {
         onSelect={setSelectedId}
         tile={tile}
         onTileChange={setTile}
-        peek={peek}
-        onPeekChange={setPeek}
       />
 
       <Filters value={filter} onChange={setFilter} shown={filtered.length} total={ranked.length} />

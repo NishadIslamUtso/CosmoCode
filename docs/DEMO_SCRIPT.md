@@ -6,7 +6,7 @@ pipeline is planned.
 
 0. (0:00) "This is a frontend prototype. It runs on a curated sample dataset bundled with the app. A live NASA data pipeline, with automatic retrieval and validation scripts, is our next step."
 1. (0:15) "Hi, we are CosmoCode, 2nd year CSE. NASA's challenge: find places on Earth that analog the permanent Moon base and Mars. We built a web app that ranks 24 real sites against Moon and Mars conditions, and shows every line of math."
-2. (0:35) "This is the map and the ranked table. Each marker is a real site, colored by score under the Mars profile. Satellite layer, hillshade layer, no API keys. This tilt is pure CSS."
+2. (0:35) "This is the map and the ranked table. Each marker is a real site, colored by score under the Mars profile. Satellite layer, hillshade layer, no API keys."
 3. (1:00) "Two built-in profiles: Moon base and Mars base. Flip them and the ranking recomputes instantly."
 4. (1:25) "And you can build your own. Presets: Lunar geology, Mars arid, Mars aqueous. Watch the biggest movers as I apply the aqueous preset. Rio Tinto climbs."
 5. (1:55) "Click a site: per-parameter breakdown, similarity chart, confidence, and the NASA sources behind it."

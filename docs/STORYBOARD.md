@@ -5,7 +5,7 @@ Beat-by-beat plan for the live demo. The whole demo runs offline; there are no A
 | Time | Beat | What the judge sees |
 | --- | --- | --- |
 | 0:00-0:20 | Hook | "NASA needs places on Earth that feel like the Moon or Mars. We built a web app that ranks 24 real sites by how close they are to Moon base or Mars base conditions, and shows all the math." |
-| 0:20-0:50 | The map | World map, markers colored by score under the Mars profile. Switch to the satellite layer, then the hillshade. Toggle the 3D peek (pure CSS tilt). |
+| 0:20-0:50 | The map | World map, markers colored by score under the Mars profile. Switch to the satellite layer, then the hillshade. |
 | 0:50-1:20 | Profiles | Flip Moon base / Mars base. Rankings recompute instantly. Point out the biggest movers. |
 | 1:20-1:50 | Custom builder | Open Custom, apply the "Mars aqueous" preset. Rio Tinto climbs the table. This is the "no black box" moment: every number is editable. |
 | 1:50-2:20 | Site detail | Click Rio Tinto. Per-parameter breakdown, similarity chart, confidence, NASA source links. |

@@ -28,8 +28,10 @@ body {
   z-index: 2;
 }
 
-/* The "3D peek" toggle. Pure CSS: tilt the map container so the terrain
-   reads as a surface instead of a flat sheet. Off by default. */
+/* Switched off. This was the "3D peek" tilt: a pure-CSS effect that tilted the
+   map container so the terrain read as a surface. It did not hold up in use,
+   so the toggle is gone from the interface. The rule stays here, unused, in
+   case we come back to it. */
 .map-peek {
   transform: perspective(1400px) rotateX(38deg) scale(0.94);
   transform-origin: center bottom;
