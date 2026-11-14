@@ -138,6 +138,12 @@ docs/             METHODOLOGY.md, PROVENANCE.md, VALIDATION.md, DATA_DICTIONARY.
 
 The same pages are served by the app at `/docs`.
 
+## Super Intelligence (SI) / AI use disclosure
+
+- **Code:** AI tools assisted with bug fixes and code reviews.
+- **Submission video:** AI tools assisted with video editing.
+- **Audio:** Some sounds in the submission video were AI-generated.
+
 ## Attribution
 
 Map tiles: OpenStreetMap, OpenTopoMap and Esri World Imagery. Data sources are listed above and
